@@ -1,17 +1,9 @@
 from django.shortcuts import render
 
+from .models import Meetup
+
 def index(request):
-    meetups = [
-        {
-            'title': 'A First Meetup', 
-            'location': 'New York',
-            'slug': 'a-first-meetup'},
-        {
-            'title': 'A Second Meetup',
-            'location': 'Paris',
-            'slug': 'a-second-meetup'
-        },
-    ]
+    meetups = Meetup.objects.all()
 
     return render(request, 'meetups/index.html', {
         'show_meetups': True,
@@ -19,14 +11,15 @@ def index(request):
     })
 
 def meetup_details(request, meetup_slug):
-    print(meetup_slug)
-    selected_meetup = {
-        'title': 'A First Meetup',
-        'description': 'This is the first meetup'
-    }
+    try:
+        selected_meetup = Meetup.objects.get(slug=meetup_slug)
 
-    return render(request, 'meetups/meetup-detail.html', {
-        'meetup_title': selected_meetup['title'],
-        'meetup_description': selected_meetup['description']
-    })
-    
+        return render(request, 'meetups/meetup-detail.html', {
+            'meetup_title': selected_meetup.title,
+            'meetup_description': selected_meetup.description,
+            'meetup_found': True
+        })
+    except Exception as e:
+        return render(request, 'meetups/meetup-detail.html', {
+            'meetup_found': False
+        })
